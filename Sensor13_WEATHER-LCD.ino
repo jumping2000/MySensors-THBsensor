@@ -1,7 +1,7 @@
  /**
  *     PROJECT: MySensors / Small battery sensor low power 8 mhz
  *     PROGRAMMER: Jumping
- *     DATE: october 10, 2016/ last update: october 10, 2016
+ *     DATE: october 16, 2017/ last update: october 17, 2017
  *     FILE: WeatherStation_CEECH.ino
  *     LICENSE: Public domain
  *    
@@ -26,10 +26,6 @@
 // Enable and select radio type attached
 #define MY_RADIO_NRF24
 //#define MY_RADIO_RFM69
-
-// change NRF24 pin
-//#define MY_RF24_CE_PIN 7
-//#define MY_RF24_CS_PIN 8
 // define NRF24 channel
 #define MY_RF24_CHANNEL  76
 //
