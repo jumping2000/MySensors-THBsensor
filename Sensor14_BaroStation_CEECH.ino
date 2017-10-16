@@ -1,19 +1,20 @@
  /**
  *     PROJECT: MySensors / Small battery sensor low power 8 mhz
  *     PROGRAMMER: Jumping
- *     DATE: october 10, 2016/ last update: october 10, 2016
- *     FILE: WeatherStation_CEECH.ino
+ *     DATE: october 10, 2016/ last update: october 16, 2017
+ *     FILE: Sensor14_BaroStation_CEECH.ino.ino
  *     LICENSE: Public domain
  *    
  *     Hardware: ATMega328p board w/ NRF24l01
  *        and MySensors 2.0
+ *        CEECH BOARD
  *            
  *    Special:
  *        program with Arduino Pro 3.3V 8Mhz!!!
  *        
  *    Summary:
  *        low power (battery)
- *        BMP 280 +HTU21D
+ *        BMP 280 + HTU21D
  *        voltage meter for battery and solar
  *    
  *    Remarks:
@@ -76,11 +77,10 @@ const float VccMax          = 1.0*4.3 ;             // Maximum expected Vcc leve
 const float VccCorrection   = 3.32/3.3 ;            // Measured Vcc by multimeter divided by reported Vcc
 float VccReference = 4.3 ;                          // voltage reference for measurement, definitive init in setup
 //-------------------------------------------------------------------
-#define BATT_CHILD_ID           7
 #define TEMP_CHILD_ID           1
 #define PRESS_CHILD_ID          2
 #define HUM_CHILD_ID            3
-
+#define BATT_CHILD_ID           7
 //-------------------------------------------------------------------
 #define P0 1013.25 // sea level pressure for my place
 #define MY_ALTITUDE 340 // Via Michelangelo Cappuccini
@@ -123,7 +123,7 @@ enum FORECAST
   float pressureAvg2;
   float dP_dt;
 //-------------------------------------------------------------------
-Adafruit_BMP280 bme = Adafruit_BMP280();                    // Digital Pressure Sensor
+Adafruit_BMP280 bmp = Adafruit_BMP280();                    // Digital Pressure Sensor
 Adafruit_HTU21DF SHT21; 
 //-------------------------------------------------------------------
 MyMessage tempMsg(TEMP_CHILD_ID, V_TEMP);                   // BMP 280
@@ -137,9 +137,8 @@ MyMessage batteryCurrentMsg(BATT_CHILD_ID, V_CURRENT);      // Battery current (
 void setup()  
 { 
   Serial.begin(9600);
-  Wire.begin();                                 // START I2C
-  //bme.begin(0x76);                            // BMP SENSOR
-  if (!bme.begin(0x76))
+  Wire.begin();                                 // START I2C  
+  if (!bmp.begin(0x76))                         // BMP SENSOR
   {
     Serial.println("BMP init failed!");
     while (1);
@@ -163,8 +162,7 @@ void presentation()  {
     wait(200);
 }
 //-------------------------------------------------------------------
-void loop()      
-{
+void loop(){
   Serial.println();
   readTempHum();
   readBaro();
@@ -174,8 +172,7 @@ void loop()
   sleep(SLEEP_TIME);
 }
 //-------------------------------------------------------------------
-void readTempHum(void)
-{
+void readTempHum(void){
     // SHT2x sensor
     // Temperature and Humidity
     float hum = SHT21.readHumidity();  
@@ -200,11 +197,11 @@ void readTempHum(void)
 void readBaro() // used to read sensor data and send it to controler
 {
   double T, P, P_raw, A;
-  T = bme.readTemperature();
-  P_raw = bme.readPressure()/100;
+  T = bmp.readTemperature();
+  P_raw = bmp.readPressure()/100;
   //float pressure = (float)bmp.readSealevelPressure(MY_ALTITUDE)/100;
   P = P_raw/pow((1.0 - ( MY_ALTITUDE/44330.0 )), 5.255);
-  A = bme.readAltitude(P0);
+  A = bmp.readAltitude(P0);
   int forecast = sample(P);
   
   if ( abs(P  - lastPressure) >= Threshold ){   // update only if threshold exceeded
@@ -306,7 +303,6 @@ float readVcc()
   resultVcc |= ADCH<<8;
   resultVcc = 1126400L / resultVcc;    // Back-calculate AVcc in mV
   resultVccFloat = (float) resultVcc / 1000.0; // Convert to Float
-
   return resultVccFloat;
 }
 //----------------------------------------------------------------/
